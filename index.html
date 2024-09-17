@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Name</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f0f0f;
+            color: #eee;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative; /* Ensure relative positioning for the cursor effect */
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #f00, #0f0, #00f); /* Default gradient */
+            mix-blend-mode: screen; /* Blend mode for the color effect */
+            pointer-events: none; /* Allow clicks to pass through */
+            z-index: -1; /* Behind all other content */
+            transition: transform 0.4s, background 0.6s; /* Smooth transition */
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: #1f1f1f;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Ensure relative positioning for the content */
+            z-index: 1; /* Ensure content is above the background */
+        }
+        .header {
+            background-color: #107c10;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #0b5a0b;
+        }
+        .user-info {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1f1f1f;
+            border-bottom: 1px solid #333;
+        }
+        .user-info button {
+            background-color: #107c10;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        .user-info button:hover {
+            background-color: #0b5a0b;
+        }
+        .user-details {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background-color: #1f1f1f;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            padding: 20px;
+            display: none;
+            width: 240px;
+        }
+        .user-details.active {
+            display: block;
+        }
+        .user-details .avatar {
+            width: 80px;
+            height: 80px;
+            background-color: #333;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        .user-details .username {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .user-details .email {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        .user-details .logout-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .user-details .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .ad {
+            background-color: #007bff;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-right: 1px solid #333;
+            flex: 0 0 280px; /* Fixed width for the ad */
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #0b5a0b #1f1f1f;
+        }
+        .ad-content {
+            margin-top: 20px;
+            color: #fff;
+        }
+        .games-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #0b5a0b #1f1f1f;
+        }
+        .game {
+            background-color: #1f1f1f;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            color: #fff;
+        }
+        .game:hover {
+            transform: translateY(-5px);
+        }
+        .game img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .game .name {
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            background-color: #107c10;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .loader {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        @keyframes animateBackground {
+            0% { background-color: #0f0f0f; }
+            25% { background-color: #1a1a1a; }
+            50% { background-color: #0f0f0f; }
+            75% { background-color: #1a1a1a; }
+            100% { background-color: #0f0f0f; }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+
+            // Update background color based on cursor position
+            function updateBackgroundColor(event) {
+                const mouseX = event.pageX;
+                const mouseY = event.pageY;
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                
+                // Calculate RGB values based on cursor position
+                const r = Math.round((mouseX / width) * 255);
+                const g = Math.round((mouseY / height) * 255);
+                const b = Math.round(((mouseX + mouseY) / (width + height)) * 255);
+                
+                // Set background gradient based on RGB values
+                body.style.setProperty('--bg-gradient', `linear-gradient(to right, rgb(${r},0,0), rgb(0,${g},0), rgb(0,0,${b}))`);
+            }
+
+            document.addEventListener('mousemove', updateBackgroundColor);
+            document.addEventListener('touchmove', updateBackgroundColor); // For touch devices
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            App Name
+        </div>
+        <div class="user-info">
+            <button id="user-info-btn">Username</button>
+            <div class="user-details" id="user-details">
+                <div class="avatar"></div>
+                <div class="username">John Doe</div>
+                <div class="email">john.doe@example.com</div>
+                <button class="logout-btn">Logout</button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="ad">
+                <div class="ad-content">
+                    <h3>Advertisement</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae urna tincidunt, molestie justo id, fermentum turpis.</p>
+                    <p>Quisque ultricies augue et justo tempor, at scelerisque lorem consequat.</p>
+                    <p>Phasellus nec urna ultrices, consequat metus nec, fermentum velit.</p>
+                </div>
+            </div
